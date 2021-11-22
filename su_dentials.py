@@ -98,7 +98,7 @@ Forgets the local password so that in order to lock or unlock you must specify a
     def lock(self, password: str = None):
         """
 Encrypts the credentials file on disk
-        :param password: The password to use (Will use the default pw for the current object unless a different on is specified)
+        :param password: The password to use (Will use the default pw for the current object unless a different one is specified)
         :return: None
         """
         if self.state() == 'locked':
@@ -108,7 +108,7 @@ Encrypts the credentials file on disk
     def unlock(self, password: str = None):
         """
 Decrypts the credentials file on disk
-        :param password: The password to use (Will use the default pw for the current object unless a different on is specified)
+        :param password: The password to use (Will use the default pw for the current object unless a different one is specified)
         :return: None
         """
         if self.state() == 'unlocked':
