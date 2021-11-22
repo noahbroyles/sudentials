@@ -52,3 +52,98 @@ you better run that thing as `sudo` or ***it ain't gonna work***. This is by des
 If you wanna use this in scheduled jobs, chuck em in the `sudo` crontab, and pass the password as a command-line arg.
 
 If you are less security minded, and you just want the shit to work wherever you run it, you can set the perms on `/var/secure` to something less strict, like `777`. You'll still need the main password, which is the only way to decrypt and read your creds.
+
+# Documentation
+## API
+### class `Credentials`:
+```python
+Credentials(password: str = None, credentials_file=CREDS_LOCATION)
+```
+Create a Credentials instance.  
+`password`: Specifies the encryption password to read the credentials with  
+`credentials_file`: Specifies the unencrypted credentials file to base off of (Defaults to `/var/secure/creds.json`)
+<br>
+<br>
+```python
+Credentials.state()
+```
+Get the state of the credentials file: 'locked' or 'unlocked' if the creds file is encrypted or unencrypted
+<br>
+<br>
+```python
+Credentials.set_password(new_password: str)
+```
+Set's a password for the credentials manager to use when locking and unlocking the system files.
+If a password has been set already, you will be asked to use `change_password()` instead.
+`new_password`: The password to set.
+<br>
+<br>
+```python
+Credentials.change_password(old_password: str, new_password: str)
+```
+Changes the credentials manager password from the old password to a new password.
+`old_password`: The old password that the credentials are encrypted with  
+`new_password`: The password to change to
+<br>
+<br>
+```python
+Credentials.forget_password()
+```
+Forgets the local password so that in order to lock or unlock you must specify a password.
+<br>
+<br>
+```python
+Credentials.lock(password: str = None)
+```
+Encrypts the credentials file on disk  
+`password`: The password to use (Will use the default pw for the current object unless a different one is specified)
+<br>
+<br>
+```python
+Credentials.unlock(password: str = None)
+```
+Decrypts the credentials file on disk
+`password`: The password to use (Will use the default pw for the current object unless a different one is specified)
+<br>
+<br>
+```python
+Credentials.change_salt(salt_length: int)
+```
+Changes the salt used to encrypt the credentials with.  
+`salt_length`: any integer length for the new salt
+<br>
+<br>
+```python
+Credentials.engage()
+```
+Loads the credentials into the environment as environment variables and sets up the global creds as attributes.
+<br>
+<br>
+```python
+Credentials.disengage()
+```
+Removes the credentials from the environment and the attributes.
+<br>
+<br>
+```python
+Credentials.write()
+```
+Saves the local credentials to the disk.
+<br>
+<br>
+```python
+Credentials.update_item(key, new_value, scope: str = 'env')
+```
+Updates a password or credential in the given scope with a new value.  
+`key`: The name of the credential  
+`new_value`: The new value  
+`scope`: The scope where the credential lives, 'env' for environment variables or 'global' for attributes. Defaults to env.
+<br>
+<br>
+```python
+Credentials.add_item()
+```
+Adds a new item to the credential manager. Will give an error if another key exists in the same scope with the same name.  
+`key`: The name of the new key  
+`value`: The value of the credential  
+`scope`: The scope where the credential lives, 'env' for environment variables or 'global' for attributes. Defaults to env.  
