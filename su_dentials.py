@@ -33,7 +33,7 @@ class Credentials:
         self._salt_file = '/var/secure/robocrypt.salt'
 
         if not os.path.exists(credentials_file) and not os.path.exists(self._locked_path):
-            raise FileNotFoundError(f'Neither a locked or unlocked credentials file could be found.')
+            raise FileNotFoundError(f'Neither a locked or unlocked credentials file could be found. Make sure you\'re running as sudo!')
 
         self.__password = password
         self.__store = Dict()
