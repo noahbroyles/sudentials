@@ -117,7 +117,16 @@ Changes the salt used to encrypt the credentials with.
 ```python
 Credentials.engage()
 ```
-Loads the credentials into the environment as environment variables and sets up the global creds as attributes.
+Loads the credentials into the environment as environment variables and sets up the global creds as attributes.  
+After using `engage()`, your `ENV` credentials will be in your environment and `GLOBAL` credentials will all be attributes of the `Credentials` object. So in your above python console, if you type:
+```pycon
+>>> creds.API_KEY
+'yee royal haww'
+>>> import os
+>>> os.environ['INNERTUBE_API_KEY']
+'AIzaSyC9XL3ZjWddXya6X74dJoCTL-WEYFDNX30'
+```
+You should see the same result.
 <br>
 <br>
 ```python
