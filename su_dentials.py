@@ -52,10 +52,10 @@ Create a Credentials instance.
         self.__password = password
         self.__store = Dict()
 
-    def state(self):
+    def state(self) -> str:
         """
 Get the state of the credentials file: 'locked' or 'unlocked' if the creds file is unencrypted or decrypted
-        :return: None
+        :return: 'locked' or 'unlocked'
         """
         if os.path.exists(self._creds_path) and not os.path.exists(self._locked_path):
             return 'unlocked'
@@ -134,11 +134,13 @@ Changes the salt used to encrypt the credentials with.
 Loads the credentials into the environment as environment variables and sets up the global creds as attributes.
         :return: None
         """
-        self.unlock()
-        with open(self._creds_path, 'r') as cf:
-            creds = json.load(cf)
+        if self.state() == 'locked':
+            creds = json.loads(robocrypt.read_encrypted_file(self._locked_path, password=self.__password, shift=17))
+        elif self.state() == 'unlocked':
+            with open(self._creds_path, 'r') as cf:
+                creds = json.load(cf)
+            self.lock()
         self.__store = Dict(env=creds['ENV'], globs=creds['GLOBAL'])
-        self.lock()
         for key, value in self.__store.env.items():
             os.environ[key] = value
 
