@@ -130,3 +130,15 @@ def decrypt_file(filepath: str, password: str, shift: int = 17):
         dcrp_f.write(decrypted_content)
 
     os.remove(filepath)
+
+
+def read_encrypted_file(filepath: str, password: str, shift: int = 17) -> bytes:
+    with open(filepath, 'rb') as f:
+        encrypted_content = f.read()
+
+    try:
+        decrypted_content = decrypt(encrypted_content, password=password.encode(), shift=shift)
+    except AttributeError:
+        raise DecryptionError
+
+    return decrypted_content
