@@ -57,7 +57,7 @@ Create a Credentials instance.
 Get the state of the credentials file: 'locked' or 'unlocked' if the creds file is unencrypted or decrypted
         :return: 'locked' or 'unlocked'
         """
-        if os.path.exists(self._creds_path) and not os.path.exists(self._locked_path):
+        if os.path.exists(self._creds_path):
             return 'unlocked'
         else:
             return 'locked'
