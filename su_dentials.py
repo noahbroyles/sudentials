@@ -163,7 +163,7 @@ Saves the local credentials to the disk.
             "ENV": {k: v for k, v in self.__store.env.items()},
             "GLOBAL": {k: v for k, v in self.__store.globs.items()}
         }
-        with open(self._creds_path, 'wb') as of:
+        with open(self._creds_path, 'w') as of:
             json.dump(data, of, indent=4)
         self.lock()
 
