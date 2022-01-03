@@ -158,14 +158,16 @@ Removes the credentials from the environment and the attributes.
 Saves the local credentials to the disk.
         :return: None
         """
-        self.unlock()
-        data = {
+        if self.state() == 'unlocked':
+            os.remove(self._creds_path)
+
+        data = robocrypt.encrypt(json.dumps({
             "ENV": {k: v for k, v in self.__store.env.items()},
             "GLOBAL": {k: v for k, v in self.__store.globs.items()}
-        }
-        with open(self._creds_path, 'w') as of:
-            json.dump(data, of, indent=4)
-        self.lock()
+        }).encode(), self.__password.encode(), shift=17)
+
+        with open(self._locked_path, 'wb') as wf:
+            wf.write(data)
 
     def update_item(self, key, new_value, scope: str = 'env'):
         """
