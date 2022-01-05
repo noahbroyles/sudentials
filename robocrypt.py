@@ -1,15 +1,14 @@
-#!/usr/bin/python3
+#  _____       _             _  _
+# |  __ \     | |           | || |
+# | |__) |___ | |__   ___   | || |_
+# |  _  // _ \| '_ \ / _ \  |__   _|
+# | | \ \ (_) | |_) | (_) |    | |
+# |_|  \_\___/|_.__/ \___/     |_|
 
-#        ____        __             _____
-#       / __ \____  / /_  ____     |__  /
-#      / /_/ / __ \/ __ \/ __ \     /_ <
-#     / _, _/ /_/ / /_/ / /_/ /   ___/ /
-#    /_/ |_|\____/_.___/\____/   /____/
 
 import os
 import base64
 
-from string import ascii_uppercase
 from cryptography.hazmat.primitives import hashes
 from cryptography.fernet import Fernet, InvalidToken
 from cryptography.hazmat.backends import default_backend
@@ -22,23 +21,14 @@ def get_salt(salt_file='/var/secure/robocrypt.salt'):
     return salt
 
 
-CIPHER_WHEEL_N = {0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e', 5: 'f', 6: 'g', 7: 'h', 8: 'i', 9: 'j', 10: 'k', 11: 'l', 12: 'm', 13: 'n', 14: 'o', 15: 'p', 16: 'q', 17: 'r', 18: 's', 19: 't', 20: 'u', 21: 'v', 22: 'w', 23: 'x', 24: 'y', 25: 'z'}
-CIPHER_WHEEL_L = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4, 'f': 5, 'g': 6, 'h': 7, 'i': 8, 'j': 9, 'k': 10, 'l': 11, 'm': 12, 'n': 13, 'o': 14, 'p': 15, 'q': 16, 'r': 17, 's': 18, 't': 19, 'u': 20, 'v': 21, 'w': 22, 'x': 23, 'y': 24, 'z': 25}
-
-
 def cipher(message: bytes, shift: int):
     message = message.decode()
     cipher_string = ''
-    for char in message:
-        if char.upper() not in ascii_uppercase:
-            cipher_string += char
-            continue
-        UPPER = True if char in ascii_uppercase else False
-        pos = CIPHER_WHEEL_L[char.lower()] + shift
-        while pos > 25:
-            pos -= 26
-        new_char = CIPHER_WHEEL_N[pos]
-        cipher_string += new_char if not UPPER else new_char.upper()
+    for i in range(len(message)):
+        pos = ord(message[i]) + shift + i
+        while pos > 1114110:
+            pos -= 1114111
+        cipher_string += chr(pos)
 
     return cipher_string.encode()
 
@@ -46,16 +36,11 @@ def cipher(message: bytes, shift: int):
 def decipher(message: bytes, shift: int):
     message = message.decode()
     cipher_string = ''
-    for char in message:
-        if char.upper() not in ascii_uppercase:
-            cipher_string += char
-            continue
-        UPPER = True if char in ascii_uppercase else False
-        pos = CIPHER_WHEEL_L[char.lower()] - shift
+    for i in range(len(message)):
+        pos = ord(message[i]) - shift - i
         while pos < 0:
-            pos = pos + 26
-        new_char = CIPHER_WHEEL_N[pos]
-        cipher_string += new_char if not UPPER else new_char.upper()
+            pos = pos + 1114111
+        cipher_string += chr(pos)
 
     return cipher_string.encode()
 
