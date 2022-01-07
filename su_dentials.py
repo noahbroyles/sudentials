@@ -103,7 +103,7 @@ Encrypts the credentials file on disk
         """
         if self.state() == 'locked':
             return
-        robocrypt.encrypt_file(filepath=self._creds_path, password=password if password else self.__password, shift=17)
+        robocrypt.encrypt_file(filepath=self._creds_path, password=password if password else self.__password)
 
     def unlock(self, password: str = None):
         """
@@ -114,7 +114,7 @@ Decrypts the credentials file on disk
         if self.state() == 'unlocked':
             return
         try:
-            robocrypt.decrypt_file(filepath=self._locked_path, password=password if password else self.__password, shift=17)
+            robocrypt.decrypt_file(filepath=self._locked_path, password=password if password else self.__password)
         except robocrypt.DecryptionError:
             raise CredentialsLockedError('Unable to unlock credentials with the provided password.')
 
@@ -135,7 +135,7 @@ Loads the credentials into the environment as environment variables and sets up 
         :return: None
         """
         if self.state() == 'locked':
-            creds = json.loads(robocrypt.read_encrypted_file(self._locked_path, password=self.__password, shift=17))
+            creds = json.loads(robocrypt.read_encrypted_file(self._locked_path, password=self.__password))
         elif self.state() == 'unlocked':
             with open(self._creds_path, 'r') as cf:
                 creds = json.load(cf)
@@ -164,7 +164,7 @@ Saves the local credentials to the disk.
         data = robocrypt.encrypt(json.dumps({
             "ENV": {k: v for k, v in self.__store.env.items()},
             "GLOBAL": {k: v for k, v in self.__store.globs.items()}
-        }).encode(), self.__password.encode(), shift=17)
+        }).encode(), self.__password.encode())
 
         with open(self._locked_path, 'wb') as wf:
             wf.write(data)
