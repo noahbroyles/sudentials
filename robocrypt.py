@@ -28,7 +28,7 @@ def get_kdf():
         algorithm=hashes.SHA512_256(),
         length=32,
         salt=get_salt(),
-        iterations=18,
+        iterations=140000,
         backend=default_backend()
     )
 
