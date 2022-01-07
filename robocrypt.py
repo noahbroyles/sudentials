@@ -4,10 +4,8 @@ import os
 import sys
 import base64
 import getpass
-import threading
 
 from pathlib import Path
-from struct import unpack
 from cryptography.hazmat.primitives import hashes
 from cryptography.fernet import Fernet, InvalidToken
 from cryptography.hazmat.backends import default_backend
