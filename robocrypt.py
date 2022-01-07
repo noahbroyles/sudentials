@@ -30,21 +30,21 @@ def get_salt(salt_file='/var/secure/robocrypt.salt'):
     return salt
 
 
-# class CipherWorker(threading.Thread):
-#     def __init__(self, chunk: bytes, shift: int, action='cipher'):
-#         super().__init__()
-#         self.chunk = chunk
-#         self.chunk_length = len(chunk)
-#         self.shift = shift if action == 'cipher' else -shift
-#         self.result: bytes = b''
-#
-#     def run(self):
-#         # print(f"crunching on a byte chunk with the length of {self.chunk_length}...")
-#         cipher_string = b''
-#         for byte in unpack(f'{self.chunk_length}c', self.chunk):
-#             cipher_string += CIPHER_WHEEL_N[(CIPHER_WHEEL_L[byte] + self.shift) % 67]
-#
-#         self.result = cipher_string
+class CipherWorker(threading.Thread):
+    def __init__(self, chunk: bytes, shift: int, action='cipher'):
+        super().__init__()
+        self.chunk = chunk
+        self.chunk_length = len(chunk)
+        self.shift = shift if action == 'cipher' else - shift
+        self.result: bytes = b''
+
+    def run(self):
+        # print(f"crunching on a byte chunk with the length of {self.chunk_length}...")
+        cipher_string = b''
+        for byte in unpack(f'{self.chunk_length}c', self.chunk):
+            cipher_string += CIPHER_WHEEL_N[(CIPHER_WHEEL_L[byte] + self.shift) % 67]
+
+        self.result = cipher_string
 
 
 def _chunker(obj, size: int):
@@ -52,34 +52,28 @@ def _chunker(obj, size: int):
 
 
 def cipher_decipher(message: bytes, shift: int, action='cipher', threads: int = 1):
-    return message
-    # print('Encryption is done, compressing...')
-    # if action == 'cipher':
-    #     return lzma.compress(message)
-    # elif action == 'decipher':
-    #     return lzma.decompress(message)
 
-    # cipher_threads = []
-    # # spin up as many threads as we're asked too
-    # for byte_chunk in _chunker(message, int(len(message) / threads)):
-    #     c_processor = CipherWorker(byte_chunk, shift, action=action)
-    #     c_processor.start()
-    #     cipher_threads.append(c_processor)
-    # # Get the results from the threads
-    # cipher_string = b''
-    # for t in cipher_threads:
-    #     t.join()
-    #     cipher_string += t.result
-    #
-    # return cipher_string
+    cipher_threads = []
+    # spin up as many threads as we're asked too
+    for byte_chunk in _chunker(message, int(len(message) / threads)):
+        c_processor = CipherWorker(byte_chunk, shift, action=action)
+        c_processor.start()
+        cipher_threads.append(c_processor)
+    # Get the results from the threads
+    cipher_string = b''
+    for t in cipher_threads:
+        t.join()
+        cipher_string += t.result
+
+    return cipher_string
 
 
 def get_kdf():
     return PBKDF2HMAC(
-        algorithm=hashes.SHA512_224(),
+        algorithm=hashes.SHA512_256(),
         length=32,
         salt=get_salt(),
-        iterations=724,
+        iterations=17,
         backend=default_backend()
     )
 
@@ -174,8 +168,8 @@ if __name__ == '__main__':
     )
     parser.add_argument('action', help='encrypt or decrypt', choices=['encrypt', 'decrypt'])
     parser.add_argument('file', help='The file to encrypt/decrypt')
-    # parser.add_argument('-s', '--shift', type=int, help='The cipher shift to use')
-    # parser.add_argument('-t', '--threads', type=int, help='number of threads to use when ciphering (only if a shift value is set)', default=1)
+    parser.add_argument('-s', '--shift', type=int, help='The cipher shift to use')
+    parser.add_argument('-t', '--threads', type=int, help='number of threads to use when ciphering (only if a shift value is set)', default=1)
     args = parser.parse_args()
 
     cryption = args.action.lower()[0:2]
@@ -186,6 +180,6 @@ if __name__ == '__main__':
         file_path = file_obj.absolute().as_posix()
         pw = getpass.getpass(f"Enter password to {cryption}crypt: ")
         if cryption == 'en':  # 'en'cryption baby!
-            encrypt_file(file_path, password=pw)  # , shift=args.shift, cipher_threads=args.threads)
+            encrypt_file(file_path, password=pw, shift=args.shift, cipher_threads=args.threads)
         elif cryption == 'de':  # 'de'cryption baby!
-            decrypt_file(file_path, password=pw)  # , shift=args.shift, cipher_threads=args.threads)
+            decrypt_file(file_path, password=pw, shift=args.shift, cipher_threads=args.threads)
