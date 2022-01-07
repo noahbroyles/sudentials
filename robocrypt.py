@@ -30,60 +30,19 @@ def get_salt(salt_file='/var/secure/robocrypt.salt'):
     return salt
 
 
-class CipherWorker(threading.Thread):
-    def __init__(self, chunk: bytes, shift: int, action='cipher'):
-        super().__init__()
-        self.chunk = chunk
-        self.chunk_length = len(chunk)
-        self.shift = shift if action == 'cipher' else - shift
-        self.result: bytes = b''
-
-    def run(self):
-        # print(f"crunching on a byte chunk with the length of {self.chunk_length}...")
-        cipher_string = b''
-        for byte in unpack(f'{self.chunk_length}c', self.chunk):
-            cipher_string += CIPHER_WHEEL_N[(CIPHER_WHEEL_L[byte] + self.shift) % 67]
-
-        self.result = cipher_string
-
-
-def _chunker(obj, size: int):
-    return (obj[pos:pos + size] for pos in range(0, len(obj), size))
-
-
-def cipher_decipher(message: bytes, shift: int, action='cipher', threads: int = 1):
-
-    cipher_threads = []
-    # spin up as many threads as we're asked too
-    for byte_chunk in _chunker(message, int(len(message) / threads)):
-        c_processor = CipherWorker(byte_chunk, shift, action=action)
-        c_processor.start()
-        cipher_threads.append(c_processor)
-    # Get the results from the threads
-    cipher_string = b''
-    for t in cipher_threads:
-        t.join()
-        cipher_string += t.result
-
-    return cipher_string
-
-
 def get_kdf():
     return PBKDF2HMAC(
         algorithm=hashes.SHA512_256(),
         length=32,
         salt=get_salt(),
-        iterations=17,
+        iterations=18,
         backend=default_backend()
     )
 
 
-def encrypt(message: bytes, password: bytes, shift: int = None, cipher_threads: int = 1):
+def encrypt(message: bytes, password: bytes):
     f = Fernet(base64.urlsafe_b64encode(get_kdf().derive(password)))
     encrypted_bytes = f.encrypt(message)
-
-    if shift is not None:
-        return cipher_decipher(encrypted_bytes, shift, action='cipher', threads=cipher_threads)
     return encrypted_bytes
 
 
@@ -92,18 +51,16 @@ class DecryptionError(Exception):
         super(DecryptionError, self).__init__()
 
 
-def decrypt(message: bytes, password: bytes, shift: int = None, cipher_threads: int = 1):
+def decrypt(message: bytes, password: bytes):
     f = Fernet(base64.urlsafe_b64encode(get_kdf().derive(password)))
 
-    if shift is not None:
-        message = cipher_decipher(message, shift, action='decipher', threads=cipher_threads)
     try:
         return f.decrypt(message)
     except InvalidToken:
         raise DecryptionError
 
 
-def encrypt_file(filepath: str, password: str, shift: int = 17, cipher_threads: int = 1):
+def encrypt_file(filepath: str, password: str):
     chunks = filepath.split('/')
     path = '/'.join(chunks[:-1])
     filename, ext = chunks[-1].split('.')
@@ -111,7 +68,7 @@ def encrypt_file(filepath: str, password: str, shift: int = 17, cipher_threads: 
     with open(filepath, 'rb') as f:
         content = f.read()
 
-    encrypted_content = encrypt(content, password.encode(), shift=shift, cipher_threads=cipher_threads)
+    encrypted_content = encrypt(content, password.encode())
 
     with open(f"{path}/{filename}.{ext}.robo", 'wb') as enc_f:
         enc_f.write(encrypted_content)
@@ -119,7 +76,7 @@ def encrypt_file(filepath: str, password: str, shift: int = 17, cipher_threads: 
     os.remove(filepath)
 
 
-def decrypt_file(filepath: str, password: str, shift: int = 17, cipher_threads: int = 1):
+def decrypt_file(filepath: str, password: str):
     chunks = filepath.split('/')
     path = '/'.join(chunks[:-1])
     filename, ext, _ = chunks[-1].split('.')
@@ -128,7 +85,7 @@ def decrypt_file(filepath: str, password: str, shift: int = 17, cipher_threads: 
         encrypted_content = f.read()
 
     try:
-        decrypted_content = decrypt(encrypted_content, password=password.encode(), shift=shift, cipher_threads=cipher_threads)
+        decrypted_content = decrypt(encrypted_content, password=password.encode())
     except AttributeError:
         raise DecryptionError
 
@@ -138,12 +95,12 @@ def decrypt_file(filepath: str, password: str, shift: int = 17, cipher_threads: 
     os.remove(filepath)
 
 
-def read_encrypted_file(filepath: str, password: str, shift: int = 17) -> bytes:
+def read_encrypted_file(filepath: str, password: str) -> bytes:
     with open(filepath, 'rb') as f:
         encrypted_content = f.read()
 
     try:
-        decrypted_content = decrypt(encrypted_content, password=password.encode(), shift=shift)
+        decrypted_content = decrypt(encrypted_content, password=password.encode())
     except AttributeError:
         raise DecryptionError
 
@@ -168,8 +125,6 @@ if __name__ == '__main__':
     )
     parser.add_argument('action', help='encrypt or decrypt', choices=['encrypt', 'decrypt'])
     parser.add_argument('file', help='The file to encrypt/decrypt')
-    parser.add_argument('-s', '--shift', type=int, help='The cipher shift to use')
-    parser.add_argument('-t', '--threads', type=int, help='number of threads to use when ciphering (only if a shift value is set)', default=1)
     args = parser.parse_args()
 
     cryption = args.action.lower()[0:2]
@@ -180,6 +135,6 @@ if __name__ == '__main__':
         file_path = file_obj.absolute().as_posix()
         pw = getpass.getpass(f"Enter password to {cryption}crypt: ")
         if cryption == 'en':  # 'en'cryption baby!
-            encrypt_file(file_path, password=pw, shift=args.shift, cipher_threads=args.threads)
+            encrypt_file(file_path, password=pw)
         elif cryption == 'de':  # 'de'cryption baby!
-            decrypt_file(file_path, password=pw, shift=args.shift, cipher_threads=args.threads)
+            decrypt_file(file_path, password=pw)
