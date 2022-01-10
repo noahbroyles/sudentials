@@ -11,7 +11,7 @@ from cryptography.fernet import Fernet, InvalidToken
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
-# This is the version of the programn ;)
+# This is the version of the programme ;)
 __version__ = '4Pro'
 
 
