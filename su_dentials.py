@@ -1,5 +1,5 @@
 import os
-import json
+import secsie
 import robocrypt
 
 from typing import Any
@@ -15,7 +15,7 @@ __all__ = [
 ]
 
 
-CREDS_LOCATION = '/var/secure/creds.json'
+CREDS_LOCATION = '/var/secure/creds.secsie'
 
 
 class CredentialsLockedError(Exception):
@@ -135,10 +135,9 @@ Loads the credentials into the environment as environment variables and sets up 
         :return: None
         """
         if self.state() == 'locked':
-            creds = json.loads(robocrypt.read_encrypted_file(self._locked_path, password=self.__password))
+            creds = secsie.parse_config(robocrypt.read_encrypted_file(self._locked_path, password=self.__password).decode('UTF-8'))
         elif self.state() == 'unlocked':
-            with open(self._creds_path, 'r') as cf:
-                creds = json.load(cf)
+            creds = secsie.parse_config_file(self._creds_path)
             self.lock()
         self.__store = Dict(env=creds['ENV'], globs=creds['GLOBAL'])
         for key, value in self.__store.env.items():
@@ -161,7 +160,7 @@ Saves the local credentials to the disk.
         if self.state() == 'unlocked':
             os.remove(self._creds_path)
 
-        data = robocrypt.encrypt(json.dumps({
+        data = robocrypt.encrypt(secsie.generate_config({
             "ENV": {k: v for k, v in self.__store.env.items()},
             "GLOBAL": {k: v for k, v in self.__store.globs.items()}
         }).encode(), self.__password.encode())
