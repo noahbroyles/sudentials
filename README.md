@@ -5,7 +5,11 @@ A Python credentials manager that uses pro technology to keep your creds and P-d
 
 
 ## How to set up:
-First, create the directory `/var/secure` owned by root with `740` permissions.
+Install requirements:
+```console
+pip3 install -r requirements.txt
+```
+Next, create the directory `/var/secure` owned by root with `740` permissions.
 ```console
 sudo mkdir /var/secure;sudo chmod 740 /var/secure
 ```
@@ -14,21 +18,18 @@ The salt will be saved as `/var/secure/robocrypt.salt`.
 ```console
 sudo python3 generateSalt.py <good big integer salt length (like 1000)>
 ```
-Next, copy the following file into `/var/secure/creds.json` (you better be root):
-```json
-{
-    "ENV": {
-        "ENV_VAR_KEY": "credential value",
-        "DBUSER": "yeeyee",
-        "DBPASSWD": "haw haw",
-        "DATABASE": "dying crow",
-        "INNERTUBE_API_KEY": "AIzaSyC9XL3ZjWddXya6X74dJoCTL-WEYFDNX30"
-    },
-    "GLOBAL": {
-        "API_KEY": "yee royal haww",
-        "WHAT_EVER_ELSE": "you bally well want"
-    }
-}
+Next, copy the following file into `/var/secure/creds.secsie` (you better be root):
+```ini
+[ENV]
+	ENV_VAR_KEY = credential value
+	DBUSER = yeeyee
+	DBPASSWD = haw haw
+	DATABASE = dying crow
+	INNERTUBE_API_KEY = AIzaSyC9XL3ZjWddXya6X74dJoCTL-WEYFDNX30
+
+[GLOBAL]
+	API_KEY = yee royal haww
+	WHAT_EVER_ELSE = you bally well want
 ```
 ***FINALLY***:  
 Copy `robocrypt.py` and `su_dentials.py` into your Python installation's `dist-packages`:
@@ -43,7 +44,7 @@ Now you're ready to rock and freaking roll! Open up a root terminal session and 
 >>> creds.lock()
 >>>
 ```
-Now remember your password. If you look in `/var/secure`, you will see that `creds.json` has been replaced by `creds.json.robo`, which is an encrypted version of the JSON credentials file you just made.
+Now remember your password. If you look in `/var/secure`, you will see that `creds.secsie` has been replaced by `creds.secsie.robo`, which is an encrypted version of the [secsie](https://github.com/noahbroyles/secsie-conf) credentials file you just made.
 Your creds are no longer readable by anything other than `su_dentials`, and that only if you have your password.  
 All your creds are encrypted by that one password, so don't lose it or do anything insecure with it.
 
