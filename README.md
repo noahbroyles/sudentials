@@ -10,7 +10,12 @@ Install requirements:
 pip3 install -r requirements.txt
 ```
 If you have not already done so, follow the [setup instructions for `robocrypt`](https://github.com/noahbroyles/Robocrypt#setup).  
-Make sure the directory `/var/secure` is owned by `root` with `740` permissions.  
+Make sure the directory `/var/secure` is owned by `root` with `740` permissions.
+```console
+$ sudo chown -R root:root /var/secure
+$ sudo chmod -R 740 /var/secure
+```
+
 Next, copy the following file into `/var/secure/creds.secsie` (you better be root):
 ```ini
 [ENV]
