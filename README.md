@@ -1,7 +1,7 @@
 # sudentials
 A Python credentials manager that uses pro technology to keep your creds and P-dubs safe.
 
-`sudentials` is a shitty name, I agree. It's fugly and stupid, but get over it. It basically means 'sudo credentials'.
+`sudentials` means 'sudo credentials'. Because only the sudo user is supposed to have access to these creds.
 
 
 ## How to set up:
