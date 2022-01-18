@@ -1,7 +1,7 @@
-# su_dentials
+# sudentials
 A Python credentials manager that uses pro technology to keep your creds and P-dubs safe.
 
-`su_dentials` is a shitty name, I agree. It's fugly and stupid, but get over it. It basically means 'sudo credentials'.
+`sudentials` is a shitty name, I agree. It's fugly and stupid, but get over it. It basically means 'sudo credentials'.
 
 
 ## How to set up:
@@ -9,15 +9,8 @@ Install requirements:
 ```console
 pip3 install -r requirements.txt
 ```
-Next, create the directory `/var/secure` owned by root with `740` permissions.
-```console
-sudo mkdir /var/secure;sudo chmod 740 /var/secure
-```
-Next, generate a salt to use for encrypting your credentials.
-The salt will be saved as `/var/secure/robocrypt.salt`.
-```console
-sudo python3 generateSalt.py <good big integer salt length (like 1000)>
-```
+If you have not already done so, follow the [setup instructions for `robocrypt`](https://github.com/noahbroyles/Robocrypt#setup).  
+Make sure the directory `/var/secure` is owned by `root` with `740` permissions.  
 Next, copy the following file into `/var/secure/creds.secsie` (you better be root):
 ```ini
 [ENV]
@@ -32,13 +25,13 @@ Next, copy the following file into `/var/secure/creds.secsie` (you better be roo
 	WHAT_EVER_ELSE = you bally well want
 ```
 ***FINALLY***:  
-Copy `robocrypt.py` and `su_dentials.py` into your Python installation's `dist-packages`:
+Copy the `sudentials` module into your Python installation's `dist-packages`:
 ```console
-sudo cp robocrypt.py su_dentials.py /usr/lib/python3/dist-packages/.
+sudo cp -r sudentials /usr/lib/python3/dist-packages/.
 ```
 Now you're ready to rock and freaking roll! Open up a root terminal session and do this:
 ```pycon
->>> from su_dentials import Credentials
+>>> from sudentials import Credentials
 >>> creds = Credentials()
 >>> creds.set_password('something juicy')
 >>> creds.lock()
@@ -157,4 +150,4 @@ Credentials.add_item()
 Adds a new item to the credential manager. Will give an error if another key exists in the same scope with the same name.  
 `key`: The name of the new key  
 `value`: The value of the credential  
-`scope`: The scope where the credential lives, 'env' for environment variables or 'global' for attributes. Defaults to env.  
+`scope`: The scope where the credential lives, 'env' for environment variables or 'global' for attributes. Defaults to env.
