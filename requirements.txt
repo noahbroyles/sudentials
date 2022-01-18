@@ -1,1 +1,3 @@
-secsie-conf==2.0.1
+secsie-conf>=2.1.1
+argcomplete==2.0.0
+robocrypt~=4.2
