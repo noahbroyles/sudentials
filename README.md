@@ -43,13 +43,13 @@ Now you're ready to rock and freaking roll! Open up a root python shell and do t
 >>>
 ```
 Now remember your password. If you look in `/var/secure`, you will see that `creds.secsie` has been replaced by `creds.secsie.robo`, which is an encrypted version of the [secsie](https://github.com/noahbroyles/secsie-conf) credentials file you just made.
-Your creds are no longer readable by anything other than `su_dentials`, and that only if you have your password.  
+Your creds are no longer readable by anything other than `sudentials`, and that only if you have your password.  
 All your creds are encrypted by that one password, so don't lose it or do anything insecure with it.
 
 ## The general idea:
-Only the root user (we're talking Unix here, not f*cking Windows) will be able to use `su_dentials`, hence the `su` part. That means if you want something to use `su_dentials`, 
+Only the root user (we're talking Unix here, not f*cking Windows) will be able to use `sudentials`, hence the `su` part. That means if you want something to use `sudentials`, 
 you better run that thing as `sudo` or ***it ain't gonna work***. This is by design.  
-If you wanna use this in scheduled jobs, chuck em in the `sudo` crontab, and pass the password as an argument. You better have a strong root password.
+If you wanna use this in scheduled jobs, chuck em in the `sudo` crontab, and pass the password as an argument. You better have a strong root password, my son!
 
 If you are less security minded, and you just want the shit to work wherever you run it, you can set the perms on `/var/secure` to something less strict, like `777`. You'll still need the main password, which is the only way to decrypt and read your creds.
 
