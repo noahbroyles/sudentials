@@ -34,7 +34,7 @@ Copy the `sudentials` module into your Python installation's `dist-packages`:
 ```console
 sudo cp -r sudentials /usr/lib/python3/dist-packages/.
 ```
-Now you're ready to rock and freaking roll! Open up a root terminal session and do this:
+Now you're ready to rock and freaking roll! Open up a root python shell and do this:
 ```pycon
 >>> from sudentials import Credentials
 >>> creds = Credentials()
